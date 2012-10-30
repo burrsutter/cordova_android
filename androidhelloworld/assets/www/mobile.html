@@ -1,0 +1,99 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+	<title>jQuery Mobile Template</title> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<meta name="viewport" 
+		content="width=device-width, initial-scale=1" /> 
+	<link rel="stylesheet" 
+		href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" /> 
+	<script type="text/javascript" 
+		src="http://code.jquery.com/jquery-1.7.1.min.js"></script> 
+	<script type="text/javascript" 
+		src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="js/libs/cordova-2.1.0.js"></script>			 
+	<script type="text/javascript"> 
+		$(document).on("pageinit", "#page1", function(event){ 			
+			console.log("Ready To Go");
+			$.getJSON("http://cordovaendpoint-burrsutter.rhcloud.com/rest/members", function(members) {
+			    // console.log("returned are " + members);
+			    var listOfMembers = $("#listOfItems");
+			    listOfMembers.empty();
+			    $.each(members, function(index, member) {
+			           // console.log(member.name);
+			          listOfMembers.append(
+			            "<li><a href='#'>" + member.name + "</a>");
+			    });
+			    listOfMembers.listview("refresh");
+			});			
+			
+		}); 
+		
+		document.addEventListener("deviceready", onDeviceReady, false);
+
+	    function onDeviceReady() {
+	    	  console.log("Device Ready To Go");
+	    	  console.log("Asking for geo location");
+              navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError);
+               
+              var options = {};
+              options.frequency = 1000;
+              console.log("Hitting Accelerometer");
+
+              var accelerationWatch = 
+                 navigator.accelerometer.watchAcceleration(
+                   updateAccelerationUI, function(ex) {
+                     console.log("accel fail (" + ex.name + ": " + ex.message + ")");
+                 }, options);              
+    	} // onDeviceReady
+
+   	   function updateAccelerationUI(a) {
+   	    	document.getElementById('my.x').innerHTML = a.x;
+   	    	document.getElementById('my.y').innerHTML = a.y;
+   	    	document.getElementById('my.z').innerHTML = a.z;
+   	   } // updateAccelerationUI
+    	
+    	function onGeoSuccess(position) {
+    		   var element = document.getElementById('geolocation');
+    		   element.innerHTML = 
+    		    'Latitude: '  + position.coords.latitude          + '<br />' +
+    		    'Longitude: ' + position.coords.longitude         + '<br />' +
+    		    'Altitude: '  + position.coords.altitude          + '<br />' +
+    		    'Accuracy: '  + position.coords.accuracy          + '<br />' +
+    		    'Alt Accuracy: ' + position.coords.altitudeAccuracy + '<br />' +
+    		    'Heading: '   + position.coords.heading           + '<br />' +
+    		    'Speed: '     + position.coords.speed             + '<br />' +
+    		    'Timestamp: ' + position.timestamp                + '<br />';
+        }
+    	function onGeoError(error) {
+    	       alert('code: '    + error.code    + '\n' +
+    	       'message: ' + error.message + '\n');
+    	}
+    	    			
+	</script> 
+</head> 
+<body> 
+	<div data-role="page" id="page1"> 
+		<div data-role="header"> 
+			<h1>jQuery Mobile</h1> 
+		</div> 
+		<div data-role="content"> 
+			<div id="geolocation">Finding geolocation..</div><p>
+		    <div>X: <b id="my.x"></b> </div>
+	        <div>Y: <b id="my.y"></b> </div>
+	        <div>Z: <b id="my.z"></b> </div>
+	        </p>
+			 
+			<ul id="listOfItems" data-role="listview" data-inset="true" 
+				data-filter="true"> 
+				<li><a href="">One</a></li> 
+				<li><a href="">Two</a></li> 
+				<li><a href="">Three</a></li> 
+			</ul> 
+		</div> 
+		<div data-role="footer"> 
+			<h4>www.jboss.org/developer</h4> 
+		</div> 
+	</div> 
+</body> 
+</html>
