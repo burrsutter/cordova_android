@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Google Maps</title>
+    <script type="text/javascript" charset="utf-8" src="js/libs/cordova-2.1.0.js"></script>
+	<link rel="stylesheet" 
+		href="css/jquery.mobile-1.1.1.css" /> 
+	<script type="text/javascript" 
+		src="js/libs/jquery-1.7.1.js"></script> 
+	<script type="text/javascript" 
+		src="js/libs/jquery.mobile-1.1.1.js"></script>
+		
+	<script type="text/javascript">
+	<!-- Event bindings need to be in a pageinit/deviceready -->
+	$(document).on("pageinit", "#page1", function(event){
+	    $("#btnCurrentPosition").tap(function () {
+	    	console.log("current position tapped/clicked");
+	        navigator.geolocation.getCurrentPosition(geoSuccessHandler, geoErrorHandler);
+			
+    	});
+	}); //pageinit
+	
+	var geoSuccessHandler = function(position) {
+	    alert('Latitude: '          + position.coords.latitude          + '\n' +
+	          'Longitude: '         + position.coords.longitude         + '\n' +
+	          'Altitude: '          + position.coords.altitude          + '\n' +
+	          'Accuracy: '          + position.coords.accuracy          + '\n' +
+	          'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
+	          'Heading: '           + position.coords.heading           + '\n' +
+	          'Speed: '             + position.coords.speed             + '\n' +
+	          'Timestamp: '         + position.timestamp                + '\n');
+	    var mapwidth = parseInt($('#map').css("width"), 10);
+	    console.log("mapwidth: " + mapwidth);
+	    var mapheight = parseInt($('#map').css("height"), 10);
+	    console.log("mapheight: " + mapheight);
+
+	    $('#map').css('visibility','visible');
+	    $('#map').attr('src', "http://maps.googleapis.com/maps/api/staticmap?center=" + 
+	    		position.coords.latitude + "," + position.coords.longitude + 
+	            "&zoom=13&size=" + mapwidth + "x" + mapheight + "&maptype=roadmap&markers=color:green%7C" +
+	            position.coords.latitude + "," + position.coords.longitude + "&sensor=false");
+	    
+	};	
+	
+	function geoErrorHandler(error) {
+	    alert('code: '    + error.code    + '\n' +
+	          'message: ' + error.message + '\n');
+	}
+	        	
+	</script>	
+</head>
+<body>
+<H1>Google Maps3</H1>
+
+	<div data-role="page" id="page1"> 
+		<div data-role="header"> 
+			<h1>Header</h1> 
+		</div> 
+		<div data-role="content">
+			<a id="btnCurrentPosition" href='#' data-role="button">Current Position</a>
+			 
+			<img id="map" width="330" height="375"/>
+		    
+		</div> 
+		<div data-role="footer"> 
+			<h4>Footer</h4> 
+		</div> 
+	</div> <!-- page1 -->
+
+</body>
+</html>
