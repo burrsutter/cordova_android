@@ -1,0 +1,216 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+	<title>Status Update</title> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<meta name="viewport" 
+		content="width=device-width, initial-scale=1" /> 
+	<link rel="stylesheet" 
+		href="css/jquery.mobile-1.1.0.min.css" /> 
+	<script type="text/javascript" 
+		src="js/libs/jquery-1.7.1.min.js"></script> 
+	<script type="text/javascript" 
+		src="js/libs/jquery.mobile-1.1.0.min.js"></script> 
+    <script type="text/javascript" src="js/libs/cordova-2.0.0.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+		
+	<script type="text/javascript"> 
+	    var endpointURL = "https://cordovaendpoint-burrsutter.rhcloud.com/rest/secured/statusupdate";
+	    // var endpointURL = "rest/statusupdate";
+	    var arrayOfItems;
+
+	    function make_base_auth(user, password) {
+			  var tok = user + ':' + password;
+			  var hash = btoa(tok);
+			  return "Basic " + hash;
+		}
+
+	    
+		$(document).on("pageinit", "#page1", function(event){ 
+
+			// makes the back buttons blue 
+			$.mobile.page.prototype.options.backBtnTheme = "b";
+			
+			refreshList();
+
+			// event handlers are setup inside of the pageinit 
+			// so that you know the DOM is setup, to attach to the event
+		    // btnRefresh event handler
+		    $("#btnRefresh").tap(function () {
+			    console.log("tapped/clicked");
+			    refreshList();
+		    });
+		    
+		    $('#newStatusForm').submit(function(event) {
+		    	event.preventDefault();
+		    }); // newStatusForm submit
+
+		    $("#btnSubmit").tap(function () {
+	    	    var statusDataAsJSON = $("#newStatusForm").serializeJSON();
+	    	    console.log(statusDataAsJSON);		
+		    	$.ajax({
+		            url: endpointURL,
+		            contentType: "application/json",
+		            dataType: "json",
+		            type: "POST",
+		            data: statusDataAsJSON,
+		            beforeSend: function (xhr){ 
+		                xhr.setRequestHeader('Authorization', make_base_auth("guest", "password")); 
+		            },		            
+		            success: function(data) {
+						// $("#formMsgs").append($('<span class="success">Member Registered</span>'));
+						refreshList();
+						$("#newStatusForm")[0].reset();
+				    }, 
+				    error: function(error) {
+					    console.log(error);
+				    }	    
+		    	}); // ajax	    	    	 
+		    }); // btnSubmit tap
+		    
+    		$('.itemList').live('tap', function(event) {
+    		    // event.preventDefault();
+    		    console.log("tap: " + event.target);
+    		    itemId = $(this).attr("data-item-id");
+    		    // var item = $(this).data("item-id");
+    		    itemText = $("body").data(itemId);
+    		    console.log("this: " + itemId + " - " + itemText);
+    		    $("#detailedText").text(itemText);
+    		    $.mobile.changePage("#pageDetails",{transition: 'flow'});
+    	    });
+		}); // pageinit
+
+		function refreshList() {
+		/*	
+			$.getJSON(endpointURL, function(events) {
+			    console.log("items returned: " + events.length);
+			
+		    	var listOfEvents = $("#listOfItems");
+		    	listOfEvents.empty();
+		    	listOfEvents.append('<li data-role="list-divider">Timeline</li>');
+		    	arrayOfItems = new Array();
+		    	$.each(events, function(index, item) {
+					// create dataItem
+					$("body").data(item.id.toString(), item.status_text.toString());
+					
+		            // add to array
+		            // arrayOfItems.push(dataItem);
+		            		            
+		            // make this 10 chars of first name, 1 char of last name, first N chars of status text
+		            subFirstName = item.first_name.substring(0,10);
+		            subLastName = item.last_name.substring(0,1);
+		            subStatusText = item.status_text.substring(0,42);
+		            lineItem = subFirstName + " " + subLastName + " " + subStatusText;
+		            newItem = "<li><a class='itemList' href='#' ";
+		            newItem = newItem + "  data-item-id='" + item.id + "'>";
+		            newItem = newItem + "  <p><strong>" + subFirstName + " " + subLastName + "</strong></p>";
+		            newItem = newItem + "  <p>" + subStatusText + "</p>";        
+		            newItem = newItem + "</a></li>";
+		            listOfEvents.append(newItem);
+		    	});
+	
+		    	
+		    	listOfEvents.listview("refresh");
+			}); // getJSON
+			*/
+
+	    	$.ajax({
+	            url: endpointURL,
+	            contentType: "application/json",
+	            dataType: "json",
+	            type: "GET",
+	            beforeSend: function (xhr){ 
+	                xhr.setRequestHeader('Authorization', make_base_auth("guest", "password")); 
+	            },	            
+	            success: function(data) {
+				    console.log("items returned: " + data.length);
+					
+			    	var listOfEvents = $("#listOfItems");
+			    	listOfEvents.empty();
+			    	listOfEvents.append('<li data-role="list-divider">Timeline</li>');
+			    	arrayOfItems = new Array();
+			    	$.each(data, function(index, item) {
+						// create dataItem
+						$("body").data(item.id.toString(), item.status_text.toString());
+						
+			            // add to array
+			            // arrayOfItems.push(dataItem);
+			            		            
+			            // make this 10 chars of first name, 1 char of last name, first N chars of status text
+			            subFirstName = item.first_name.substring(0,10);
+			            subLastName = item.last_name.substring(0,1);
+			            subStatusText = item.status_text.substring(0,42);
+			            lineItem = subFirstName + " " + subLastName + " " + subStatusText;
+			            newItem = "<li><a class='itemList' href='#' ";
+			            newItem = newItem + "  data-item-id='" + item.id + "'>";
+			            newItem = newItem + "  <p><strong>" + subFirstName + " " + subLastName + "</strong></p>";
+			            newItem = newItem + "  <p>" + subStatusText + "</p>";        
+			            newItem = newItem + "</a></li>";
+			            listOfEvents.append(newItem);
+			    	});
+		
+			    	
+			    	listOfEvents.listview("refresh");
+
+	            }, 
+			    error: function(error) {
+				    console.log(error);
+			    }	    
+	    	}); // ajax	    	    	 
+			   			
+		} // refreshList()
+	</script> 
+</head> 
+<body> 
+	<div data-role="page" id="page1"> 
+		<div data-role="header"> 
+			<h1>Scrum2</h1> 
+		</div> 
+		<div data-role="content"> 
+		
+			<form id="newStatusForm" data-ajax="false">
+				<fieldset>
+					<div>
+						<input type="hidden" name="first_name"
+							id="first_name" value="Burr567890"/>
+						<input type="hidden" name="last_name"
+							id="last_name" value="Sutter"/>
+						<input type="hidden" name="clanname"
+							id="last_name" value="Rogue Ninjas"/>							
+					</div>
+					<div>
+						<label for="status_text">Status:</label> 
+						<textarea name="status_text" id="status_text" required></textarea>
+					</div>
+					<div id="formMsgs"></div>
+  					<a id="btnSubmit" href="#" data-role="button">Submit</a>
+					 
+				</fieldset>
+			</form>
+		
+			<a id="btnRefresh" href="#" data-role="button">Refresh</a>
+			<ul id="listOfItems" data-role="listview" data-inset="true" 
+				data-filter="false"> 
+				<li><a href="">One</a></li> 
+				<li><a href="">Two</a></li> 
+				<li><a href="">Three</a></li> 
+			</ul> 
+		</div> 
+		<div data-role="footer"> 
+			<h4>Say What?</h4> 
+		</div> 
+	</div> <!-- page1 -->
+	<div data-role="page" id="pageDetails" data-add-back-btn="true">
+				<div data-role="header"> 
+			<h1>Scrum</h1> 
+		</div> 
+		<div data-role="content">
+		  <div id="detailedText">You should not see this</div> 
+		</div>
+		<div data-role="footer"> 
+			<h4>Say What?</h4> 
+		</div> 
+		
+	</div>
+</body> 
+</html>
