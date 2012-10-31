@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" charset="utf-8" src="js/libs/cordova-2.1.0.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/libs/childbrowser.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/libs/jso.js"></script>
+
+<link rel="stylesheet" 
+	href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" /> 
+<script type="text/javascript" 
+	src="http://code.jquery.com/jquery-1.7.1.min.js"></script> 
+<script type="text/javascript" 
+	src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
+<script>
+$(document).on("pageinit", "#page1", function(event) {
+	console.log("pageinit");
+	var debug = true;
+	
+    $("#btnClickMe").tap(function () {
+	    console.log("btnClickMe tapped/clicked");
+	    
+	    
+	    if(window.plugins.childBrowser == null) {
+            ChildBrowser.install();
+        }
+
+	    jso_registerRedirectHandler(window.plugins.childBrowser.showWebPage);
+        
+		window.plugins.childBrowser.onLocationChange = function(url) {
+			console.log("");
+			console.log(""); 
+		    console.log("onLocationChange: " + url); 
+		    url = decodeURIComponent(url);
+		    console.log("Checking location: " + url);
+		    console.log("");
+		};
+        window.plugins.childBrowser.onClose = function() {
+            console.log("onClose");
+        };
+        window.plugins.childBrowser.onOpenExternal = function() {
+            console.log("onOpenExternal");
+        };        
+        /*
+         * Configure the OAuth providers to use.
+         */
+        jso_configure({
+            "facebook": {
+                client_id: "160916310714507",
+                redirect_uri: "http://statushandler-burrsutter.rhcloud.com/TestServlet",
+                authorization: "https://www.facebook.com/dialog/oauth",
+                presenttoken: "qs"
+            }
+        }, {"debug": debug});
+	    
+	    // window.plugins.childBrowser.showWebPage("http://www.google.com", { showLocationBar: true });
+        
+        
+        jso_wipe();
+        jso_dump();
+
+        // Perform the protected OAuth calls.
+        $.oajax({
+            url: "https://graph.facebook.com/me/home",
+            jso_provider: "facebook",
+            jso_scopes: ["read_stream"],
+            jso_allowia: true,
+            dataType: 'json',
+            success: function(data) {
+                console.log("Response (facebook):");
+                console.log(data);
+            }
+        });	        
+    });
+
+}); // pageinit
+</script>
+</head>
+
+<body>
+	<div data-role="page" id="page1"> 
+		<div data-role="header"> 
+			<H1>Phonegap6</H1>
+		</div> 
+		<div data-role="content"> 
+		    <a id="btnClickMe" href="#" data-role="button">Click Me</a>
+			<ul id="listOfItems" data-role="listview" data-inset="true" 
+				data-filter="false"> 
+				<li><a href="">One</a></li> 
+				<li><a href="">Two</a></li> 
+				<li><a href="">Three</a></li> 
+			</ul> 
+		</div> 
+		<div data-role="footer"> 
+			<h4>www.jboss.org/developer</h4> 
+		</div> 
+	</div> 
+
+</body>
+</html>
